@@ -525,7 +525,8 @@ function nextQuestion() {
 
     answers[currentIdx] = {
       part:'A', origIdx:q.origIdx,
-      answer: letters[selectedOrigOptIdx]
+      answer: letters[selectedOrigOptIdx],
+      correct: q.correct
     };
     selectedOptDisplayIdx = null;
     selectedOrigOptIdx    = null;
