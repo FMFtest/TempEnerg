@@ -251,7 +251,7 @@ const MAX_VIOLATIONS = 2;
 
 
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxc01x7O9cHyOh4__ehTCVJeqQzF2ljF7FLIbRH_6N4Q8GxZ4Lqo6AHlKySIA0nbrm7/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwYzjcCq138IntCmeMDqjoHkrcegS7c6bzpA6F6-7dQVSaRDBtVTRAARQxMRX5oBuKi/exec";
 const SECRET_TOKEN = "term0_2026_xT5q"; //
 
 
@@ -434,10 +434,12 @@ function buildPayload(status) {
 }
 
 function sendData(status) {
+  const payload = buildPayload(status);
+  console.log('[sendData]', status, JSON.stringify(payload));
   fetch(SCRIPT_URL, {
     method:'POST', mode:'no-cors',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(buildPayload(status))
+    body: JSON.stringify(payload)
   }).catch(e => console.warn('Błąd wysyłania:', e));
 }
 
