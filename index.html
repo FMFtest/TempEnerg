@@ -251,7 +251,7 @@ const MAX_VIOLATIONS = 2;
 
 
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwYzjcCq138IntCmeMDqjoHkrcegS7c6bzpA6F6-7dQVSaRDBtVTRAARQxMRX5oBuKi/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxIb5Pszhue_57OIRgRPxcDkT0qCDym-YKPPJWHkfAMc_UDJLxtOMHd6ol924RMCAVf/exec";
 const SECRET_TOKEN = "term0_2026_xT5q"; //
 
 
@@ -398,21 +398,23 @@ function buildPayload(status) {
   const oAns    = ['—','—','—','—'];
   const oParams = ['—','—','—','—'];   // zawiera origIdx_ w params
  
-  let aPosCounter = 0, bPosCounter = 0;
-  // allQuestions: 0-3 = część A (wylosowane), 4-7 = część B
+  // allQuestions[0-3] = część A, allQuestions[4-7] = część B
+  // Używamy stałej pozycji — nie licznika — żeby unikać przesunięć przy null
   allQuestions.forEach((q, pos) => {
     const a = answers[pos];
-    if (!a) return;
-    if (a.part==='A') {
-      tAns[aPosCounter]  = a.answer;
-      tCorr[aPosCounter] = a.correct;
-      aPosCounter++;
-    }
-    if (a.part==='B') {
-      oAns[bPosCounter]    = a.answer;
-      // Doklejamy origIdx do params żeby GS wiedział którą formułę zastosować
-      oParams[bPosCounter] = 'origIdx=' + a.origIdx + ' ' + (a.params || '');
-      bPosCounter++;
+    if (q.part==='A') {
+      // pozycja A: 0-3
+      if (a && a.part==='A') {
+        tAns[pos]  = a.answer;
+        tCorr[pos] = a.correct;
+      }
+    } else {
+      // pozycja B: 4-7 → slot 0-3
+      const bSlot = pos - 4;
+      if (a && a.part==='B') {
+        oAns[bSlot]    = a.answer;
+        oParams[bSlot] = 'origIdx=' + a.origIdx + ' ' + (a.params || '');
+      }
     }
   });
   const now = new Date();
