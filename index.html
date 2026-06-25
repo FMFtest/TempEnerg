@@ -251,7 +251,7 @@ const MAX_VIOLATIONS = 2;
 
 
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNufonA3OsMo3eZgrtaSqg9eeBk1Uue1tmXMo0eMEnOSMW0AyW7KoXMIkNKM3BBkuh/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxc01x7O9cHyOh4__ehTCVJeqQzF2ljF7FLIbRH_6N4Q8GxZ4Lqo6AHlKySIA0nbrm7/exec";
 const SECRET_TOKEN = "term0_2026_xT5q"; //
 
 
@@ -393,16 +393,26 @@ let startTime    = null;
 function buildPayload(status) {
   const nazwisko = document.getElementById('nazwisko').value.trim() || '(brak)';
   const klasa    = document.getElementById('klasa').value.trim()    || '(brak)';
-  const tAns = ['—','—','—','—','—','—','—','—'];
-  const oAns = ['—','—','—','—','—','—','—','—'];
-  const oParams = ['—','—','—','—','—','—','—','—'];
+  const tAns    = ['—','—','—','—'];  // pozycja wyświetlenia 0-3
+  const tCorr   = [-1,-1,-1,-1];       // correctPool[origIdx] dla każdej pozycji
+  const oAns    = ['—','—','—','—'];
+  const oParams = ['—','—','—','—'];   // zawiera origIdx_ w params
  
-  answers.forEach(a => {
+  let aPosCounter = 0, bPosCounter = 0;
+  // allQuestions: 0-3 = część A (wylosowane), 4-7 = część B
+  allQuestions.forEach((q, pos) => {
+    const a = answers[pos];
     if (!a) return;
-    if (a.part==='A') tAns[a.origIdx] = a.answer;
+    if (a.part==='A') {
+      tAns[aPosCounter]  = a.answer;
+      tCorr[aPosCounter] = a.correct;
+      aPosCounter++;
+    }
     if (a.part==='B') {
-      oAns[a.origIdx] = a.answer;
-      oParams[a.origIdx] = a.params || '—';
+      oAns[bPosCounter]    = a.answer;
+      // Doklejamy origIdx do params żeby GS wiedział którą formułę zastosować
+      oParams[bPosCounter] = 'origIdx=' + a.origIdx + ' ' + (a.params || '');
+      bPosCounter++;
     }
   });
   const now = new Date();
@@ -417,11 +427,9 @@ function buildPayload(status) {
     status,
 
     t1:tAns[0], t2:tAns[1], t3:tAns[2], t4:tAns[3],
-    t5:tAns[4], t6:tAns[5], t7:tAns[6], t8:tAns[7],
-    o1:oAns[0], o2:oAns[1], o3:oAns[2], o4:oAns[3],
-    o5:oAns[4], o6:oAns[5], o7:oAns[6], o8:oAns[7],
-    p1:oParams[0], p2:oParams[1], p3:oParams[2], p4:oParams[3],
-    p5:oParams[4], p6:oParams[5], p7:oParams[6], p8:oParams[7]
+    tCorrect: tCorr.join(','),
+    o5:oAns[0], o6:oAns[1], o7:oAns[2], o8:oAns[3],
+    p5:oParams[0], p6:oParams[1], p7:oParams[2], p8:oParams[3]
   };
 }
 
